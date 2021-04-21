@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Star Wars!</title>
+</head>
+<body>
+<div id="root"></div>
+<p id="result"></p>
+<script src="StarWarsFullStack.js"></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+    const wsUri = "ws://localhost:9095/data";
+    let output;
+
+    function init() {
+        output = document.getElementById("output");
+        webSocket();
+    }
+
+    function webSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function (evt) {
+            onClose(evt)
+        };
+        websocket.onmessage = function (evt) {
+            onMessage(evt)
+        };
+        websocket.onerror = function (evt) {
+            onError(evt)
+        };
+    }
+
+    function close() {
+        websocket.close()
+    }
+
+    function onClose(evt) {
+        console.log("closed")
+    }
+
+    function onMessage(evt) {
+        writeToScreen('<span style="color: blue;">' + evt.data + '</span>');
+    }
+
+    function onError(evt) {
+        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    function writeToScreen(message) {
+        output = document.getElementById("output");
+        output.innerHTML = message
+    }
+
+    window.addEventListener("load", init, false);
+
+
+    $(document).ready(function (e) {
+        $('#upload').on('click', function () {
+            if (window.websocket.readyState == window.websocket.CLOSED) {
+                init()
+            }
+            const file_data = $('#file').prop('files')[0];
+            const form_data = new FormData();
+            form_data.append('file', file_data);
+            const reader = new FileReader();
+            reader.onload = function () {
+                StarWarsFullStack.sendData(reader.result, file_data.name)
+            }
+            reader.readAsText(file_data);
+            $('#file').val('')
+        });
+    });
+</script>
+
+<input type="file" id="file" name="file" accept="application/json"/>
+<button id="upload">Upload</button>
+
+<p id="output"></p>
+</body>
+</html>
