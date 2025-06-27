@@ -1,11 +1,12 @@
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.Statement
+import java.io.File
 
 object Database {
     fun getRoutes(databaseName: String): List<Route> {
         val routes = mutableListOf<Route>()
-        val url = "jdbc:sqlite:/Users/admin/Desktop/StarWarsFullStack/$databaseName"
+        val url = "jdbc:sqlite:${File(databaseName).absolutePath}"
         val conn = DriverManager.getConnection(url);
 
         val statement: Statement = conn.createStatement()
